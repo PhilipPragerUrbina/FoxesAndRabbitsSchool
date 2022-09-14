@@ -6,7 +6,9 @@ import Graph.*;
 
 import java.io.Serializable;
 import java.util.List;
-
+//todo interface
+//todo add human structures
+//todo make not grid
 /**
  * A simple model of a fox. Foxes age, move, eat rabbits, and die.
  * 

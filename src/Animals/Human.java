@@ -7,7 +7,7 @@ import java.util.List;
 // they hunt foxes, build houses to destroy environment
 
 public class Human {
-    //todo make humans walk on structures
+
 
     //overall stats
     private static int BREEDING_AGE = 18;

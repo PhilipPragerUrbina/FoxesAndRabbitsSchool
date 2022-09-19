@@ -6,9 +6,7 @@ import Graph.*;
 
 import java.io.Serializable;
 import java.util.List;
-//todo interface
-//todo add human structures
-//todo make not grid
+
 /**
  * A simple model of a fox. Foxes age, move, eat rabbits, and die.
  * 
@@ -178,7 +176,10 @@ public class Fox {
 	public boolean isAlive() {
 		return alive;
 	}
-
+	public void setEaten()
+	{
+		alive = false;
+	}
 	/**
 	 * Set the animal's location.
 	 * 
@@ -197,6 +198,7 @@ public class Fox {
 	 * @param location
 	 *            The fox's location.
 	 */
+
 	public void setLocation(Location location) {
 		this.location = location;
 	}

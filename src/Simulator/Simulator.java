@@ -29,6 +29,8 @@ public class Simulator {
     // The probability that a fox will be created in any given grid position.
     private static final double FOX_CREATION_PROBABILITY = 0.02;
 
+    private static final double HUMAN_CREATION_PROBABILITY = 0.015;
+
     // The probability that a rabbit will be created in any given grid position.
     private static final double RABBIT_CREATION_PROBABILITY = 0.08;
 
@@ -36,6 +38,8 @@ public class Simulator {
     // iteration.
     private ArrayList<Rabbit> rabbitList;
     private ArrayList<Fox> foxList;
+    private ArrayList<Human> humanList;
+    private ArrayList<Structure> structureList;
 
     // The current state of the field.
     private Field field;
@@ -81,6 +85,8 @@ public class Simulator {
 
         rabbitList = new ArrayList<Rabbit>();
         foxList = new ArrayList<Fox>();
+        humanList = new ArrayList<>();
+        structureList = new ArrayList<>();
         field = new Field(width, height);
         updatedField = new Field(width, height);
         stats = new FieldStats();
@@ -94,17 +100,21 @@ public class Simulator {
 
         // Create a view of the state of each location in the field.
         view = new FieldDisplay(p, this.field, VIEW_EDGE_BUFFER, VIEW_EDGE_BUFFER, p.width - 2*VIEW_EDGE_BUFFER, p.height / 2 - 2 * VIEW_EDGE_BUFFER);
-        view.setColor(Rabbit.class, p.color(155, 155, 155));
-        view.setColor(Fox.class, p.color(200, 0, 255));
+        view.setColor(Rabbit.class, p.color(155, 155, 155)); //gray
+        view.setColor(Structure.class, p.color(0,255,0)); //green
+        view.setColor(Human.class, p.color(255, 0, 0)); //red
+        view.setColor(Fox.class, p.color(200, 0, 255));//purple
 
         graph = new Graph(p, view.getLeftEdge(), view.getBottomEdge()+VIEW_EDGE_BUFFER, view.getRightEdge(), p.height-VIEW_EDGE_BUFFER, 0,
                 0, 500, field.getHeight() * field.getWidth());
 
-        graph.title = "Animals.Fox and Animals.Rabbit Populations";
+        graph.title = "Animals.Fox and Animals.Rabbit and human and structure Populations";
         graph.xlabel = "Time";
         graph.ylabel = "Pop.\t\t";
         graph.setColor(Rabbit.class, p.color(155, 155, 155));
         graph.setColor(Fox.class, p.color(200, 0, 255));
+        graph.setColor(Structure.class, p.color(0,255,0));
+        graph.setColor(Human.class, p.color(255, 0 ,0));
     }
 
     /**
@@ -166,6 +176,31 @@ public class Simulator {
         // Add new born foxList to the main list of foxList.
         foxList.addAll(babyFoxStorage);
 
+        // Create new list for newborn humanList.
+        ArrayList<Human> babyHumanStorage = new ArrayList<Human>();
+        ArrayList<Structure> builtStructures = new ArrayList<Structure>();
+
+        // Loop through Humans; let each live around.
+        for (int i = 0; i < humanList.size(); i++) {
+            Human human = humanList.get(i);
+            human.step(field, updatedField, babyHumanStorage,builtStructures);
+            if (!human.isAlive()) {
+                humanList.remove(i);
+                i--;
+            }
+        }
+
+
+        // keep structures
+        for (int i = 0; i < structureList.size(); i++) {
+            Structure building = structureList.get(i);
+            building.keep(updatedField);
+        }
+
+        humanList.addAll(babyHumanStorage);
+        structureList.addAll(builtStructures);
+
+
         // Swap the field and updatedField at the end of the step.
         Field temp = field;
         field = updatedField;
@@ -213,7 +248,14 @@ public class Simulator {
         field.clear();
         for (int row = 0; row < field.getHeight(); row++) {
             for (int col = 0; col < field.getWidth(); col++) {
-                if (rand.nextDouble() <= FOX_CREATION_PROBABILITY) {
+
+                //start with the smallest probability
+                 if (rand.nextDouble() <= HUMAN_CREATION_PROBABILITY) {
+                    Human human = new Human((int)(Math.random()*Human.MAX_AGE), new Location(row,col));
+                    humanList.add(human);
+                    field.put(human, row, col);
+                }
+                else  if (rand.nextDouble() <= FOX_CREATION_PROBABILITY) {
                     Fox fox = new Fox(true);
                     fox.setLocation(row, col);
                     foxList.add(fox);
@@ -228,6 +270,7 @@ public class Simulator {
         }
         Collections.shuffle(rabbitList);
         Collections.shuffle(foxList);
+        Collections.shuffle(humanList);
     }
 
     /**
@@ -272,6 +315,10 @@ public class Simulator {
                         rabbitList.remove((Rabbit) animal);
                     if (animal instanceof Fox)
                         foxList.remove((Fox) animal);
+                    if (animal instanceof Human)
+                        humanList.remove((Human) animal);
+                    if (animal instanceof Structure)
+                        structureList.remove((Structure) animal);
                     field.put(null, locToCheck);
                     updatedField.put(null, locToCheck);
                 }

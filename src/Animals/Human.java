@@ -18,6 +18,7 @@ public class Human {
     private static int MAX_CHILDREN = 2;
     private static int WORK_AGE = 12; //age at which human can do stuff
     private static boolean CRAMPED_STRUCTURES = true; //can build adjacent structures
+    private static boolean ENTER_BUILDINGS = false; //hunters can live in building
 
     //individual stats
     private int age;
@@ -48,7 +49,7 @@ public class Human {
                 //create structure
                 if(Math.random() < STRUCTURE_PROBABILITY){
                     Location structure_location = next_field.randomAdjacentLocation(location);
-                    if(!adjacentStructure(current_field, structure_location) || CRAMPED_STRUCTURES){
+                    if(adjacentStructure(current_field, structure_location)==null || CRAMPED_STRUCTURES){
                         Structure structure = new Structure(structure_location);
                         structures.add(structure);
                         next_field.put(structure ,structure_location);
@@ -62,6 +63,9 @@ public class Human {
                 Location new_location = findFood(current_field, location); //find fox
                 if (new_location == null) {
                     new_location = next_field.freeAdjacentLocation(location); //otherwise, move randomly
+                    if(new_location == null && ENTER_BUILDINGS){
+                        new_location = adjacentStructure(current_field,location); //live in building
+                    }
                 }
                 setLocation(new_location, next_field);
             }
@@ -86,15 +90,15 @@ public class Human {
     }
 
     //is structure adjacent
-    private boolean adjacentStructure(Field field, Location location) {
+    private Location adjacentStructure(Field field, Location location) {
         List<Location> adjacentLocations = field.adjacentLocations(location);
         for (Location where : adjacentLocations) {
             Object animal = field.getObjectAt(where);
             if (animal instanceof Structure) {
-                return true;
+                return where;
             }
         }
-        return false;
+        return null;
     }
 
     //set location and kill if overcrowded

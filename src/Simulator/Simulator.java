@@ -29,17 +29,14 @@ public class Simulator {
     // The probability that a fox will be created in any given grid position.
     private static final double FOX_CREATION_PROBABILITY = 0.02;
 
-    private static final double HUMAN_CREATION_PROBABILITY = 0.015;
+    private static final double HUMAN_CREATION_PROBABILITY = 0.0005;
 
     // The probability that a rabbit will be created in any given grid position.
     private static final double RABBIT_CREATION_PROBABILITY = 0.08;
 
     // Lists of animals in the field. Separate lists are kept for ease of
     // iteration.
-    private ArrayList<Rabbit> rabbitList;
-    private ArrayList<Fox> foxList;
-    private ArrayList<Human> humanList;
-    private ArrayList<Structure> structureList;
+    private ArrayList<Animal> animal_list;
 
     // The current state of the field.
     private Field field;
@@ -83,10 +80,7 @@ public class Simulator {
             width = DEFAULT_WIDTH;
         }
 
-        rabbitList = new ArrayList<Rabbit>();
-        foxList = new ArrayList<Fox>();
-        humanList = new ArrayList<>();
-        structureList = new ArrayList<>();
+        animal_list = new ArrayList<Animal>();
         field = new Field(width, height);
         updatedField = new Field(width, height);
         stats = new FieldStats();
@@ -98,6 +92,8 @@ public class Simulator {
     public void setGUI(PApplet p) {
         this.graphicsWindow = p;
 
+        //todo clean up colors
+//impiliments colorable
         // Create a view of the state of each location in the field.
         view = new FieldDisplay(p, this.field, VIEW_EDGE_BUFFER, VIEW_EDGE_BUFFER, p.width - 2*VIEW_EDGE_BUFFER, p.height / 2 - 2 * VIEW_EDGE_BUFFER);
         view.setColor(Rabbit.class, p.color(155, 155, 155)); //gray
@@ -144,61 +140,18 @@ public class Simulator {
     public void simulateOneStep() {
         step++;
 
-        // New List to hold newborn rabbitList.
-        ArrayList<Rabbit> babyRabbitStorage = new ArrayList<Rabbit>();
-
-        // Loop through all Rabbits. Let each run around.
-        for (int i = 0; i < rabbitList.size(); i++) {
-            Rabbit rabbit = rabbitList.get(i);
-            rabbit.run(updatedField, babyRabbitStorage);
-            if (!rabbit.isAlive()) {
-                rabbitList.remove(i);
-                i--;
-            }
-        }
-
-        // Add new born rabbitList to the main list of rabbitList.
-        rabbitList.addAll(babyRabbitStorage);
-
-        // Create new list for newborn foxList.
-        ArrayList<Fox> babyFoxStorage = new ArrayList<Fox>();
-
-        // Loop through Foxes; let each run around.
-        for (int i = 0; i < foxList.size(); i++) {
-            Fox fox = foxList.get(i);
-            fox.hunt(field, updatedField, babyFoxStorage);
-            if (!fox.isAlive()) {
-                foxList.remove(i);
-                i--;
-            }
-        }
-
-        // Add new born foxList to the main list of foxList.
-        foxList.addAll(babyFoxStorage);
-
-        // Create new list for newborn humanList.
-        ArrayList<Human> babyHumanStorage = new ArrayList<Human>();
-        ArrayList<Structure> builtStructures = new ArrayList<Structure>();
+        ArrayList<Animal> new_animals = new ArrayList<>();
 
         // Loop through Humans; let each live around.
-        for (int i = 0; i < humanList.size(); i++) {
-            Human human = humanList.get(i);
-            human.step(field, updatedField, babyHumanStorage,builtStructures);
-            if (!human.isAlive()) {
-                humanList.remove(i);
+        for (int i = 0; i < animal_list.size(); i++) {
+            Animal animal = animal_list.get(i);
+            animal.step(field, updatedField, new_animals);
+            if (!animal.isAlive()) {
+                animal_list.remove(i);
                 i--;
             }
         }
-
-
-        // keep structures
-        for (int i = 0; i < structureList.size(); i++) {
-            Structure building = structureList.get(i);
-            building.keep(updatedField);
-        }
-
-        humanList.addAll(babyHumanStorage);
-        structureList.addAll(builtStructures);
+        animal_list.addAll(new_animals);
 
 
         // Swap the field and updatedField at the end of the step.
@@ -223,8 +176,7 @@ public class Simulator {
      */
     public void reset() {
         step = 0;
-        rabbitList.clear();
-        foxList.clear();
+        animal_list.clear();
         field.clear();
         updatedField.clear();
         initializeBoard(field);
@@ -248,29 +200,25 @@ public class Simulator {
         field.clear();
         for (int row = 0; row < field.getHeight(); row++) {
             for (int col = 0; col < field.getWidth(); col++) {
-
+//todo cleanup this if statements
                 //start with the smallest probability
                  if (rand.nextDouble() <= HUMAN_CREATION_PROBABILITY) {
-                    Human human = new Human((int)(Math.random()*Human.MAX_AGE), new Location(row,col));
-                    humanList.add(human);
+                    Human human = new Human(true, new Location(row,col));
+                    animal_list.add(human);
                     field.put(human, row, col);
                 }
                 else  if (rand.nextDouble() <= FOX_CREATION_PROBABILITY) {
-                    Fox fox = new Fox(true);
-                    fox.setLocation(row, col);
-                    foxList.add(fox);
+                    Fox fox = new Fox(true,new Location(row,col));
+                     animal_list.add(fox);
                     field.put(fox, row, col);
                 } else if (rand.nextDouble() <= RABBIT_CREATION_PROBABILITY) {
-                    Rabbit rabbit = new Rabbit(true);
-                    rabbit.setLocation(row, col);
-                    rabbitList.add(rabbit);
+                    Rabbit rabbit = new Rabbit(true,new Location(row,col));
+                     animal_list.add(rabbit);
                     field.put(rabbit, row, col);
                 }
             }
         }
-        Collections.shuffle(rabbitList);
-        Collections.shuffle(foxList);
-        Collections.shuffle(humanList);
+        Collections.shuffle(animal_list);
     }
 
     /**
@@ -310,15 +258,10 @@ public class Simulator {
             for (int y = loc.getRow() - 8; y < loc.getRow() + 8; y++) {
                 Location locToCheck = new Location(y, x);
                 if (field.isLegalLocation(locToCheck)) {
-                    Object animal = field.getObjectAt(locToCheck);
-                    if (animal instanceof Rabbit)
-                        rabbitList.remove((Rabbit) animal);
-                    if (animal instanceof Fox)
-                        foxList.remove((Fox) animal);
-                    if (animal instanceof Human)
-                        humanList.remove((Human) animal);
-                    if (animal instanceof Structure)
-                        structureList.remove((Structure) animal);
+                    //todo fix this field class
+                    Animal animal = (Animal) field.getObjectAt(locToCheck);
+                   animal_list.remove(animal);
+
                     field.put(null, locToCheck);
                     updatedField.put(null, locToCheck);
                 }

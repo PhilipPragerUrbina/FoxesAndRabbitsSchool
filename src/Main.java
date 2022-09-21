@@ -36,6 +36,11 @@ public class Main extends PApplet {
         if (!paused) {
             simulator.simulateOneStep();
         }
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         simulator.drawField();
         simulator.drawGraph();

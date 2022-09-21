@@ -5,6 +5,7 @@ import Field.*;
 import Graph.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
  * 
  * @author David J. Barnes and Michael Kolling.  Modified by David Dobervich 2007-2022
  */
-public class Fox {
+public class Fox extends Animal{
 	// ----------------------------------------------------
 	// Characteristics shared by all foxes (static fields).
 	// ----------------------------------------------------
@@ -31,12 +32,7 @@ public class Fox {
 	// -----------------------------------------------------
 	// Individual characteristics (attributes).
 	// -----------------------------------------------------
-	// The fox's age.
-	private int age;
-	// Whether the fox is alive or not.
-	private boolean alive;
-	// The fox's position
-	private Location location;
+
 	// The fox's food level, which is increased by eating rabbits.
 	private int foodLevel;
 
@@ -47,67 +43,63 @@ public class Fox {
 	 * @param startWithRandomAge
 	 *            If true, the fox will have random age and hunger level.
 	 */
-	public Fox(boolean startWithRandomAge) {
-		age = 0;
-		alive = true;
+	public Fox(boolean startWithRandomAge, Location location) {
+		super( location);
 		if (startWithRandomAge) {
-			age = (int)(Math.random()*MAX_AGE);
+			setAge((int)(Math.random()*MAX_AGE));
 			foodLevel = (int)(Math.random()*RABBIT_FOOD_VALUE);
 		} else {
-			// leave age at 0
 			foodLevel = RABBIT_FOOD_VALUE;
 		}
 	}
+
+
 
 	/**
 	 * This is what the fox does most of the time: it hunts for rabbits. In the
 	 * process, it might breed, die of hunger, or die of old age.
 	 * 
-	 * @param currentField
+	 * @param current_field
 	 *            The field currently occupied.
-	 * @param updatedField
+	 * @param updated_field
 	 *            The field to transfer to.
-	 * @param babyFoxStorage
+	 * @param new_animals
 	 *            A list to add newly born foxes to.
 	 */
-	public void hunt(Field currentField, Field updatedField, List<Fox> babyFoxStorage) {
-		incrementAge();
-		incrementHunger();
-		if (alive) {
+
+
+	@Override
+	protected void performActions(Field current_field, Field updated_field, List<Animal> new_animals) {
 			// New foxes are born into adjacent locations.
 			int births = breed();
 			for (int b = 0; b < births; b++) {
-				Fox newFox = new Fox(false);
+				Location loc= updated_field.randomAdjacentLocation(location);
+				Fox newFox = new Fox(true,loc);
 				newFox.setFoodLevel(this.foodLevel);
-				babyFoxStorage.add(newFox);
-				Location loc = updatedField.randomAdjacentLocation(location);
-				newFox.setLocation(loc);
-				updatedField.put(newFox, loc);
+				new_animals.add(newFox);
+				updated_field.put(newFox, loc);
 			}
 			// Move towards the source of food if found.
-			Location newLocation = findFood(currentField, location);
+			Location newLocation = findFood(current_field, location);
 			if (newLocation == null) { // no food found - move randomly
-				newLocation = updatedField.freeAdjacentLocation(location);
+				newLocation = updated_field.freeAdjacentLocation(location);
 			}
 			if (newLocation != null) {
 				setLocation(newLocation);
-				updatedField.put(this, newLocation);
+				updated_field.put(this, newLocation);
 			} else {
 				// can neither move nor stay - overcrowding - all locations
 				// taken
-				alive = false;
+				kill();
 			}
-		}
 	}
 
-	/**
-	 * Increase the age. This could result in the fox's death.
-	 */
-	private void incrementAge() {
-		age++;
-		if (age > MAX_AGE) {
-			alive = false;
+	@Override
+	protected void checkDeath() {
+		if (getAge() > MAX_AGE) {
+			kill();
 		}
+		incrementHunger();
 	}
 
 	/**
@@ -116,7 +108,7 @@ public class Fox {
 	private void incrementHunger() {
 		foodLevel--;
 		if (foodLevel <= 0) {
-			alive = false;
+			kill();
 		}
 	}
 
@@ -138,7 +130,7 @@ public class Fox {
 			if (animal instanceof Rabbit) {
 				Rabbit rabbit = (Rabbit) animal;
 				if (rabbit.isAlive()) {
-					rabbit.setEaten();
+					rabbit.kill();
 					foodLevel = RABBIT_FOOD_VALUE;
 					return where;
 				}
@@ -165,21 +157,14 @@ public class Fox {
 	 * A fox can breed if it has reached the breeding age.
 	 */
 	private boolean canBreed() {
-		return age >= BREEDING_AGE;
+		return getAge() >= BREEDING_AGE;
 	}
 
-	/**
-	 * Check whether the fox is alive or not.
-	 * 
-	 * @return True if the fox is still alive.
-	 */
-	public boolean isAlive() {
-		return alive;
+	@Override
+	public String getTypeName() {
+		return "Fox";
 	}
-	public void setEaten()
-	{
-		alive = false;
-	}
+
 	/**
 	 * Set the animal's location.
 	 * 

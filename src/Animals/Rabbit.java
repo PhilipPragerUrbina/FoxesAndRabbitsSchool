@@ -12,7 +12,7 @@ import java.util.List;
  * 
  * @author David J. Barnes and Michael Kolling.  Modified by David Dobervich 2007-2022
  */
-public class Rabbit {
+public class Rabbit extends Animal {
     // ----------------------------------------------------
     // Characteristics shared by all rabbits (static fields).
     // ----------------------------------------------------
@@ -27,17 +27,7 @@ public class Rabbit {
     // The maximum number of births.
     private static int MAX_LITTER_SIZE = 5;
 
-    // -----------------------------------------------------
-    // Individual characteristics (attributes).
-    // -----------------------------------------------------
-    // The rabbit's age.
-    private int age;
-    
-    // Whether the rabbit is alive or not.
-    private boolean alive;
-    
-    // The rabbit's position
-    private Location location;
+
 
     /**
      * Create a new rabbit. A rabbit may be created with age
@@ -45,58 +35,48 @@ public class Rabbit {
      * 
      * @param startWithRandomAge If true, the rabbit will have a random age.
      */
-    public Rabbit(boolean startWithRandomAge)
+    public Rabbit(boolean startWithRandomAge, Location location)
     {
-        age = 0;
-        alive = true;
+        super(location);
         if(startWithRandomAge) {
-            age = (int)(Math.random()*MAX_AGE);
+            setAge( (int)(Math.random()*MAX_AGE));
         }
     }
-    
-    /**
-     * This is what the rabbit does most of the time - it runs 
-     * around. Sometimes it will breed or die of old age.
-     * @param updatedField The field to transfer to.
-     * @param babyRabbitStorage A list to add newly born rabbits to.
-     */
-    public void run(Field updatedField, List<Rabbit> babyRabbitStorage)
-    {
-        incrementAge();
-        if(alive) {
-            int births = breed();
-            for(int b = 0; b < births; b++) {
-                Rabbit newRabbit = new Rabbit(false);
-                babyRabbitStorage.add(newRabbit);
-                Location loc = updatedField.randomAdjacentLocation(location);
-                newRabbit.setLocation(loc);
-                updatedField.put(newRabbit, loc);
-            }
-            Location newLocation = updatedField.freeAdjacentLocation(location);
-            // Only transfer to the updated field if there was a free location
-            if(newLocation != null) {
-                setLocation(newLocation);
-                updatedField.put(this, newLocation);
-            }
-            else {
-                // can neither move nor stay - overcrowding - all locations taken
-                alive = false;
-            }
+
+    @Override
+    public String getTypeName() {
+        return "Rabbit";
+    }
+
+    @Override
+    protected void performActions(Field current_field, Field next_field, List<Animal> new_animals) {
+        int births = breed();
+        for(int b = 0; b < births; b++) {
+            Location loc = next_field.randomAdjacentLocation(location);
+            Rabbit newRabbit = new Rabbit(false,loc);
+            newRabbit.setLocation(loc);
+            new_animals.add(newRabbit);
+            next_field.put(newRabbit, loc);
+        }
+        Location newLocation = next_field.freeAdjacentLocation(location);
+        // Only transfer to the updated field if there was a free location
+        if(newLocation != null) {
+            setLocation(newLocation);
+            next_field.put(this, newLocation);
+        }
+        else {
+           kill();
         }
     }
-    
-    /**
-     * Increase the age.
-     * This could result in the rabbit's death.
-     */
-    private void incrementAge()
-    {
-        age++;
-        if(age > MAX_AGE) {
-            alive = false;
+
+
+    @Override
+    protected void checkDeath() {
+        if(getAge() > MAX_AGE) {
+           kill();
         }
     }
-    
+
     /**
      * Generate a number representing the number of births,
      * if it can breed.
@@ -117,25 +97,10 @@ public class Rabbit {
      */
     private boolean canBreed()
     {
-        return age >= BREEDING_AGE;
+        return getAge() >= BREEDING_AGE;
     }
     
-    /**
-     * Check whether the rabbit is alive or not.
-     * @return true if the rabbit is still alive.
-     */
-    public boolean isAlive()
-    {
-        return alive;
-    }
 
-    /**
-     * Tell the rabbit that it's dead now :(
-     */
-    public void setEaten()
-    {
-        alive = false;
-    }
     
     /**
      * Set the animal's location.

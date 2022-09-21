@@ -1,6 +1,10 @@
 package Field;
 
+import Animals.Animal;
+import Animals.Fox;
+
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -160,6 +164,17 @@ public class Field implements Serializable {
 			return location;
 		}
 	}
+//todo fix this
+	/*private Location getAdjacentOfType( Location location,Class<? extends Object> t  ) {
+		List<Location> adjacentLocations = adjacentLocations(location);
+		for (Location where : adjacentLocations) {
+			Object animal = getObjectAt(where);
+			if (animal instanceof t) {
+				return where;
+			}
+		}
+		return null;
+	}*/
 
 	/**
 	 * Try to find a free location that is adjacent to the given location. If

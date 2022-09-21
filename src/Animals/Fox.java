@@ -4,6 +4,7 @@ import Animals.*;
 import Field.*;
 import Graph.*;
 
+import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,19 +54,12 @@ public class Fox extends Animal{
 		}
 	}
 
+	@Override
+	public Color getColor() {
+		return new Color(155,100,0); //orange
+	}
 
 
-	/**
-	 * This is what the fox does most of the time: it hunts for rabbits. In the
-	 * process, it might breed, die of hunger, or die of old age.
-	 * 
-	 * @param current_field
-	 *            The field currently occupied.
-	 * @param updated_field
-	 *            The field to transfer to.
-	 * @param new_animals
-	 *            A list to add newly born foxes to.
-	 */
 
 
 	@Override

@@ -1,6 +1,8 @@
 package Animals;
 
 import Field.*;
+
+import java.awt.*;
 import java.util.List;
 
 //class to represent a human
@@ -33,6 +35,11 @@ public class Human extends Animal {
     @Override
     public String getTypeName() {
         return "Human";
+    }
+
+    @Override
+    public Color getColor() {
+        return new Color(255,0,0); //red
     }
 
     @Override

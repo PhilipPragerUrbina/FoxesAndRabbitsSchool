@@ -92,25 +92,26 @@ public class Simulator {
     public void setGUI(PApplet p) {
         this.graphicsWindow = p;
 
-        //todo clean up colors
-//impiliments colorable
+
+
         // Create a view of the state of each location in the field.
         view = new FieldDisplay(p, this.field, VIEW_EDGE_BUFFER, VIEW_EDGE_BUFFER, p.width - 2*VIEW_EDGE_BUFFER, p.height / 2 - 2 * VIEW_EDGE_BUFFER);
-        view.setColor(Rabbit.class, p.color(155, 155, 155)); //gray
-        view.setColor(Structure.class, p.color(0,255,0)); //green
-        view.setColor(Human.class, p.color(255, 0, 0)); //red
-        view.setColor(Fox.class, p.color(200, 0, 255));//purple
+
+
 
         graph = new Graph(p, view.getLeftEdge(), view.getBottomEdge()+VIEW_EDGE_BUFFER, view.getRightEdge(), p.height-VIEW_EDGE_BUFFER, 0,
                 0, 500, field.getHeight() * field.getWidth());
 
+
+        for (Animal animal : animal_list) {
+            graph.setColor(animal.getClass(), animal.getColor().hashCode()); //set graph colors
+            view.setColor(animal.getClass(), animal.getColor().hashCode()); //set field colors
+
+        }
+
         graph.title = "Animals.Fox and Animals.Rabbit and human and structure Populations";
         graph.xlabel = "Time";
         graph.ylabel = "Pop.\t\t";
-        graph.setColor(Rabbit.class, p.color(155, 155, 155));
-        graph.setColor(Fox.class, p.color(200, 0, 255));
-        graph.setColor(Structure.class, p.color(0,255,0));
-        graph.setColor(Human.class, p.color(255, 0 ,0));
     }
 
     /**

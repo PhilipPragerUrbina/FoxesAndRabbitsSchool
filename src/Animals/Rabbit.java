@@ -3,6 +3,8 @@ package Animals;
 import Animals.*;
 import Field.*;
 import Graph.*;
+
+import java.awt.*;
 import java.io.Serializable;
 import java.util.List;
 
@@ -46,6 +48,11 @@ public class Rabbit extends Animal {
     @Override
     public String getTypeName() {
         return "Rabbit";
+    }
+
+    @Override
+    public Color getColor() {
+        return new Color(100,100,100); //gray
     }
 
     @Override

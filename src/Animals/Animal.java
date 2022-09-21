@@ -1,7 +1,8 @@
 package Animals;
 
 import Field.*;
-import java.util.ArrayList;
+
+import java.awt.*;
 import java.util.List;
 
 //superclass for animals
@@ -33,6 +34,8 @@ public abstract class Animal {
     protected abstract void checkDeath(); //kill animal if needed
 
     public abstract String getTypeName(); //get the name of the animal
+
+    public abstract Color getColor();
 
     //getters and setters
     protected int getAge(){

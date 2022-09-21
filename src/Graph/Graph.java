@@ -2,6 +2,8 @@ package Graph;
 
 import java.util.HashMap;
 import java.util.Set;
+
+import Animals.Animal;
 import processing.core.PApplet;
 import processing.core.PFont;
 

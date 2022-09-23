@@ -1,5 +1,8 @@
 package Simulator;
 
+import java.awt.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,17 +29,14 @@ public class Simulator {
     // How many pixels to leave as a buffer between rendered elements
     private static final int VIEW_EDGE_BUFFER = 20;
 
-    // The probability that a fox will be created in any given grid position.
-    private static final double FOX_CREATION_PROBABILITY = 0.02;
-
-    private static final double HUMAN_CREATION_PROBABILITY = 0.0005;
-
-    // The probability that a rabbit will be created in any given grid position.
-    private static final double RABBIT_CREATION_PROBABILITY = 0.08;
 
     // Lists of animals in the field. Separate lists are kept for ease of
     // iteration.
     private ArrayList<Animal> animal_list;
+
+    //all animal classes that should be used
+    private ArrayList<Class<? extends Animal>> animals_to_add;
+    private ArrayList<Double> spawn_probabilities;
 
     // The current state of the field.
     private Field field;
@@ -84,7 +84,14 @@ public class Simulator {
         field = new Field(width, height);
         updatedField = new Field(width, height);
         stats = new FieldStats();
+        spawn_probabilities= new ArrayList<>();
+        animals_to_add = new ArrayList<>();
 
+
+    }
+
+    //do after animals classes have been added
+   public void populate(){
         // Setup a valid starting point.
         reset();
     }
@@ -103,13 +110,16 @@ public class Simulator {
                 0, 500, field.getHeight() * field.getWidth());
 
 
+
         for (Animal animal : animal_list) {
             graph.setColor(animal.getClass(), animal.getColor().hashCode()); //set graph colors
             view.setColor(animal.getClass(), animal.getColor().hashCode()); //set field colors
 
         }
-
-        graph.title = "Animals.Fox and Animals.Rabbit and human and structure Populations";
+        graph.title = "";
+        for (Class<? extends Animal> c : animals_to_add) {
+            graph.title += c.getName() + " , ";
+        }
         graph.xlabel = "Time";
         graph.ylabel = "Pop.\t\t";
     }
@@ -120,6 +130,12 @@ public class Simulator {
      */
     public void runLongSimulation() {
         simulate(500);
+    }
+
+    //add animal class to simulation
+    public void addAnimal(Class<? extends Animal> type, double spawn_prob){
+        spawn_probabilities.add(spawn_prob);
+        animals_to_add.add(type);
     }
 
     /**
@@ -180,7 +196,17 @@ public class Simulator {
         animal_list.clear();
         field.clear();
         updatedField.clear();
-        initializeBoard(field);
+        try {
+            initializeBoard(field);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         if (graph != null) {
             graph.clear();
@@ -196,30 +222,41 @@ public class Simulator {
      *
      * @param field The field to be populated.
      */
-    private void initializeBoard(Field field) {
+    private void initializeBoard(Field field) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Random rand = new Random();
         field.clear();
         for (int row = 0; row < field.getHeight(); row++) {
             for (int col = 0; col < field.getWidth(); col++) {
-//todo cleanup this if statements
-                //start with the smallest probability
-                 if (rand.nextDouble() <= HUMAN_CREATION_PROBABILITY) {
-                    Human human = new Human(true, new Location(row,col));
-                    animal_list.add(human);
-                    field.put(human, row, col);
-                }
-                else  if (rand.nextDouble() <= FOX_CREATION_PROBABILITY) {
-                    Fox fox = new Fox(true,new Location(row,col));
-                     animal_list.add(fox);
-                    field.put(fox, row, col);
-                } else if (rand.nextDouble() <= RABBIT_CREATION_PROBABILITY) {
-                    Rabbit rabbit = new Rabbit(true,new Location(row,col));
-                     animal_list.add(rabbit);
-                    field.put(rabbit, row, col);
-                }
+                Class<? extends Animal> c = randomAnimal(rand,1.0);
+                Constructor<? extends Animal> con =  c.getConstructor();
+                Animal new_animal = (Animal)con.newInstance(true,new Location(row,col));
+                animal_list.add(new_animal);
+                field.put(new_animal, row, col);
             }
         }
         Collections.shuffle(animal_list);
+    }
+
+    //get a random animal type recursively
+    //very computationally expensive, but you dont have a lot of animal classes, and it tries the probabilities in increasing order as it should be
+    private Class<? extends Animal> randomAnimal(Random rand, double threshold) {
+        double minimum_p = spawn_probabilities.get(0); //smallest probability so far
+        Class<? extends Animal> final_c = animals_to_add.get(0); //associated class
+        for (int i = 0; i < animals_to_add.size(); i++) { //for each
+            Class<? extends  Animal> c = animals_to_add.get(i);
+            double p = spawn_probabilities.get(i);
+
+            if (p < minimum_p && p > threshold) {//if smaller but also more than the last iteration
+                minimum_p = p; //update
+                final_c = c;
+            }
+
+        }
+        if(rand.nextDouble() < minimum_p){
+            return final_c; //randomly selected
+        }
+        return randomAnimal(rand, minimum_p);//try again with a larger probability
+
     }
 
     /**
@@ -259,8 +296,7 @@ public class Simulator {
             for (int y = loc.getRow() - 8; y < loc.getRow() + 8; y++) {
                 Location locToCheck = new Location(y, x);
                 if (field.isLegalLocation(locToCheck)) {
-                    //todo fix this field class
-                    Animal animal = (Animal) field.getObjectAt(locToCheck);
+                    Animal animal = field.getObjectAt(locToCheck);
                    animal_list.remove(animal);
 
                     field.put(null, locToCheck);

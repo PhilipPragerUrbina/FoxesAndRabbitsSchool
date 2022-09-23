@@ -74,7 +74,7 @@ public class Fox extends Animal{
 				updated_field.put(newFox, loc);
 			}
 			// Move towards the source of food if found.
-			Location newLocation = findFood(current_field, location);
+			Location newLocation = current_field.getAdjacentOfType( location, "Rabbit", true);
 			if (newLocation == null) { // no food found - move randomly
 				newLocation = updated_field.freeAdjacentLocation(location);
 			}
@@ -106,33 +106,8 @@ public class Fox extends Animal{
 		}
 	}
 
-	/**
-	 * Tell the fox to look for rabbits adjacent to its current location. Only
-	 * the first live rabbit is eaten.
-	 * 
-	 * @param field
-	 *            The field in which it must look.
-	 * @param location
-	 *            Where in the field it is located.
-	 * @return Where food was found, or null if it wasn't.
-	 */
-	private Location findFood(Field field, Location location) {
-		List<Location> adjacentLocations = field.adjacentLocations(location);
 
-		for (Location where : adjacentLocations) {
-			Object animal = field.getObjectAt(where);
-			if (animal instanceof Rabbit) {
-				Rabbit rabbit = (Rabbit) animal;
-				if (rabbit.isAlive()) {
-					rabbit.kill();
-					foodLevel = RABBIT_FOOD_VALUE;
-					return where;
-				}
-			}
-		}
 
-		return null;
-	}
 
 	/**
 	 * Generate a number representing the number of births, if it can breed.

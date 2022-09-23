@@ -28,7 +28,7 @@ public class Field implements Serializable {
 	private int height, width;
 
 	// Storage for the items on the board.
-	private Object[][] board;
+	private Animal[][] board;
 
 	private HashMap<Class, ArrayList<Location>> animals;
 
@@ -72,7 +72,7 @@ public class Field implements Serializable {
 		this.width = width;
 		this.numberOfColumns = width;
 		this.numberOfRows = height;
-		board = new Object[height][width];
+		board = new Animal[height][width];
 		animals = new HashMap<Class, ArrayList<Location>>();
 	}
 
@@ -98,7 +98,7 @@ public class Field implements Serializable {
 	 * @param col
 	 *            Column coordinate of the location.
 	 */
-	public void put(Object obj, int row, int col) {
+	public void put(Animal obj, int row, int col) {
 		put(obj, new Location(row, col));
 	}
 	
@@ -111,7 +111,7 @@ public class Field implements Serializable {
 	 * @param location
 	 *            Where to place the animal.
 	 */
-	public void put(Object obj, Location location) {
+	public void put(Animal obj, Location location) {
 		board[location.getRow()][location.getCol()] = obj;
 	}
 
@@ -122,7 +122,7 @@ public class Field implements Serializable {
 	 *            Where in the field.
 	 * @return The animal at the given location, or null if there is none.
 	 */
-	public Object getObjectAt(Location location) {
+	public Animal getObjectAt(Location location) {
 		return getObjectAt(location.getRow(), location.getCol());
 	}
 
@@ -135,7 +135,7 @@ public class Field implements Serializable {
 	 *            The desired column.
 	 * @return The animal at the given location, or null if there is none.
 	 */
-	public Object getObjectAt(int row, int col) {
+	public Animal getObjectAt(int row, int col) {
 		return board[row][col];
 	}
 
@@ -164,17 +164,23 @@ public class Field implements Serializable {
 			return location;
 		}
 	}
-//todo fix this
-	/*private Location getAdjacentOfType( Location location,Class<? extends Object> t  ) {
+		//return the location of an adjacent type and kill if specified
+	public Location getAdjacentOfType(Location location, String name){
+		return getAdjacentOfType(location,name,false);
+	}
+	public Location getAdjacentOfType( Location location,String name, boolean kill  ) {
 		List<Location> adjacentLocations = adjacentLocations(location);
 		for (Location where : adjacentLocations) {
-			Object animal = getObjectAt(where);
-			if (animal instanceof t) {
-				return where;
+			Animal animal = getObjectAt(where);
+			if (animal.getTypeName() == name) {
+				if(animal.isAlive()){
+					if(kill){animal.kill();}
+					return where;
+				}
 			}
 		}
 		return null;
-	}*/
+	}
 
 	/**
 	 * Try to find a free location that is adjacent to the given location. If

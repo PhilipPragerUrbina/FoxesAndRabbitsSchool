@@ -9,7 +9,6 @@ import java.util.List;
 public abstract class Animal {
     private boolean is_alive = true; //should be kept in simulation
     private int age; //how long has been alive
-
     protected Location location; //where is it on the field
 
 

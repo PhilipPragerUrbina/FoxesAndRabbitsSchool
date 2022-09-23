@@ -56,7 +56,7 @@ public class Human extends Animal {
             //create structure
             if(Math.random() < STRUCTURE_PROBABILITY){
                 Location structure_location = next_field.randomAdjacentLocation(location);
-                if(adjacentStructure(current_field, structure_location)==null || CRAMPED_STRUCTURES){
+                if(current_field.getAdjacentOfType(location, "Structure") == null || CRAMPED_STRUCTURES){
                     Structure structure = new Structure(structure_location);
                     new_animals.add(structure);
                     next_field.put(structure ,structure_location);
@@ -67,11 +67,11 @@ public class Human extends Animal {
 
         }else{
             //hunter
-            Location new_location = findFood(current_field, location); //find fox
+            Location new_location = current_field.getAdjacentOfType(location, "Fox", true); //find fox(food_
             if (new_location == null) {
                 new_location = next_field.freeAdjacentLocation(location); //otherwise, move randomly
                 if(new_location == null && ENTER_BUILDINGS){
-                    new_location = adjacentStructure(current_field,location); //live in building
+                    new_location = current_field.getAdjacentOfType(location, "Structure"); //live in building
                 }
             }
             setLocation(new_location, next_field);
@@ -80,33 +80,9 @@ public class Human extends Animal {
 
 
 
-    //get adjacent fox
-    private Location findFood(Field field, Location location) {
-        List<Location> adjacentLocations = field.adjacentLocations(location);
-        for (Location where : adjacentLocations) {
-            Object animal = field.getObjectAt(where);
-            if (animal instanceof Fox) {
-                Fox fox = (Fox) animal;
-                if (fox.isAlive()) {
-                    fox.kill();
-                    return where;
-                }
-            }
-        }
-        return null;
-    }
 
-    //is structure adjacent
-    private Location adjacentStructure(Field field, Location location) {
-        List<Location> adjacentLocations = field.adjacentLocations(location);
-        for (Location where : adjacentLocations) {
-            Object animal = field.getObjectAt(where);
-            if (animal instanceof Structure) {
-                return where;
-            }
-        }
-        return null;
-    }
+
+
 
     //set location and kill if overcrowded
     private void setLocation(Location new_location, Field next_field){

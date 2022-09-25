@@ -227,11 +227,14 @@ public class Simulator {
         field.clear();
         for (int row = 0; row < field.getHeight(); row++) {
             for (int col = 0; col < field.getWidth(); col++) {
-                Class<? extends Animal> c = randomAnimal(rand,1.0);
-                Constructor<? extends Animal> con =  c.getConstructor();
-                Animal new_animal = (Animal)con.newInstance(true,new Location(row,col));
-                animal_list.add(new_animal);
-                field.put(new_animal, row, col);
+                Class<? extends Animal> c = randomAnimal(rand,0);
+                if(c != null){
+                    Constructor<? extends Animal> con =  c.getConstructor(boolean.class, Location.class);
+                    Animal new_animal = (Animal)con.newInstance(true,new Location(row,col));
+                    animal_list.add(new_animal);
+                    field.put(new_animal, row, col);
+                }
+
             }
         }
         Collections.shuffle(animal_list);
@@ -240,8 +243,8 @@ public class Simulator {
     //get a random animal type recursively
     //very computationally expensive, but you dont have a lot of animal classes, and it tries the probabilities in increasing order as it should be
     private Class<? extends Animal> randomAnimal(Random rand, double threshold) {
-        double minimum_p = spawn_probabilities.get(0); //smallest probability so far
-        Class<? extends Animal> final_c = animals_to_add.get(0); //associated class
+        double minimum_p = Double.MAX_VALUE; //smallest probability so far
+        Class<? extends Animal> final_c = null; //associated class
         for (int i = 0; i < animals_to_add.size(); i++) { //for each
             Class<? extends  Animal> c = animals_to_add.get(i);
             double p = spawn_probabilities.get(i);
@@ -251,6 +254,9 @@ public class Simulator {
                 final_c = c;
             }
 
+        }
+        if(final_c == null){
+            return null;
         }
         if(rand.nextDouble() < minimum_p){
             return final_c; //randomly selected

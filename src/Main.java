@@ -1,4 +1,5 @@
 import Animals.Fox;
+import Animals.Human;
 import Animals.Rabbit;
 import Simulator.Simulator;
 import processing.core.*;
@@ -17,8 +18,11 @@ public class Main extends PApplet {
     public void setup() {
         calculateTextSize();
         this.simulator = new Simulator(80, 60);
-        this.simulator.addAnimal(Rabbit.class, 0.3);
-        this.simulator.addAnimal(Fox.class, 0.1);
+        //add animals
+        this.simulator.addAnimal(Rabbit.class, 0.08);
+        this.simulator.addAnimal(Fox.class, 0.02);
+        this.simulator.addAnimal(Human.class, 0.0005);
+
         this.simulator.populate();
         this.simulator.setGUI(this);
     }

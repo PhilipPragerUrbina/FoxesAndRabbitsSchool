@@ -172,7 +172,7 @@ public class Field implements Serializable {
 		List<Location> adjacentLocations = adjacentLocations(location);
 		for (Location where : adjacentLocations) {
 			Animal animal = getObjectAt(where);
-			if (animal.getTypeName() == name) {
+			if (animal != null && animal.getTypeName() == name) {
 				if(animal.isAlive()){
 					if(kill){animal.kill();}
 					return where;

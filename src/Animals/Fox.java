@@ -75,6 +75,7 @@ public class Fox extends Animal{
 			}
 			// Move towards the source of food if found.
 			Location newLocation = current_field.getAdjacentOfType( location, "Rabbit", true);
+			if(newLocation != null){foodLevel = RABBIT_FOOD_VALUE;}//found food
 			if (newLocation == null) { // no food found - move randomly
 				newLocation = updated_field.freeAdjacentLocation(location);
 			}

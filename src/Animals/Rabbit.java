@@ -1,11 +1,8 @@
 package Animals;
 
-import Animals.*;
 import Field.*;
-import Graph.*;
 
 import java.awt.*;
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -37,7 +34,7 @@ public class Rabbit extends Animal {
      * 
      * @param startWithRandomAge If true, the rabbit will have a random age.
      */
-    public Rabbit(boolean startWithRandomAge, Location location)
+    public Rabbit(boolean startWithRandomAge, Vector2 location)
     {
         super(location);
         if(startWithRandomAge) {
@@ -59,13 +56,13 @@ public class Rabbit extends Animal {
     protected void performActions(Field current_field, Field next_field, List<Animal> new_animals) {
         int births = breed();
         for(int b = 0; b < births; b++) {
-            Location loc = next_field.randomAdjacentLocation(location);
+            Vector2 loc = next_field.randomAdjacentLocation(location);
             Rabbit newRabbit = new Rabbit(false,loc);
             newRabbit.setLocation(loc);
             new_animals.add(newRabbit);
             next_field.put(newRabbit, loc);
         }
-        Location newLocation = next_field.freeAdjacentLocation(location);
+        Vector2 newLocation = next_field.freeAdjacentLocation(location);
         // Only transfer to the updated field if there was a free location
         if(newLocation != null) {
             setLocation(newLocation);
@@ -116,14 +113,14 @@ public class Rabbit extends Animal {
      */
     public void setLocation(int row, int col)
     {
-        this.location = new Location(row, col);
+        this.location = new Vector2(row, col);
     }
 
     /**
      * Set the rabbit's location.
      * @param location The rabbit's location.
      */
-    public void setLocation(Location location)
+    public void setLocation(Vector2 location)
     {
         this.location = location;
     }

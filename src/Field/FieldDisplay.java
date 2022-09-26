@@ -86,9 +86,9 @@ public class FieldDisplay {
         }
     }
     
-	public Location gridLocationAt(float mx, float my) {
+	public Vector2 gridLocationAt(float mx, float my) {
 		if (mx > x && mx < x + w && my > y && my < y+h) {
-			return new Location((int)Math.floor((my-y)/dy), (int)Math.floor((mx-x)/dx));
+			return new Vector2((int)Math.floor((my-y)/dy), (int)Math.floor((mx-x)/dx));
 		} else return null;
 	}
 

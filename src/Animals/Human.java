@@ -24,7 +24,7 @@ public class Human extends Animal {
     //individual stats
     private boolean builder; //is a builder or hunter
 
-    public Human(boolean random_age, Location location) {
+    public Human(boolean random_age, Vector2 location) {
         super(location);
         if(random_age){
             setAge((int)(Math.random()*Human.MAX_AGE));
@@ -47,7 +47,7 @@ public class Human extends Animal {
         //create babies
         for (int b = 0; b < breed(); b++) {
 
-            Location baby_location = next_field.randomAdjacentLocation(location);
+            Vector2 baby_location = next_field.randomAdjacentLocation(location);
             Human baby_human = new Human(false,baby_location);
             new_animals.add(baby_human);
             next_field.put(baby_human ,baby_location);
@@ -55,7 +55,7 @@ public class Human extends Animal {
         if(builder){
             //create structure
             if(Math.random() < STRUCTURE_PROBABILITY){
-                Location structure_location = next_field.randomAdjacentLocation(location);
+                Vector2 structure_location = next_field.randomAdjacentLocation(location);
                 if(current_field.getAdjacentOfType(location, "Structure") == null || CRAMPED_STRUCTURES){
                     Structure structure = new Structure(structure_location);
                     new_animals.add(structure);
@@ -67,7 +67,7 @@ public class Human extends Animal {
 
         }else{
             //hunter
-            Location new_location = current_field.getAdjacentOfType(location, "Fox", true); //find fox(food_
+            Vector2 new_location = current_field.getAdjacentOfType(location, "Fox", true); //find fox(food_
             if (new_location == null) {
                 new_location = next_field.freeAdjacentLocation(location); //otherwise, move randomly
                 if(new_location == null && ENTER_BUILDINGS){
@@ -85,7 +85,7 @@ public class Human extends Animal {
 
 
     //set location and kill if overcrowded
-    private void setLocation(Location new_location, Field next_field){
+    private void setLocation(Vector2 new_location, Field next_field){
         if (new_location != null) {
             this.location = new_location;
             next_field.put(this, new_location);

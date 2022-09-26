@@ -1,12 +1,8 @@
 package Animals;
 
-import Animals.*;
 import Field.*;
-import Graph.*;
 
 import java.awt.*;
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +40,7 @@ public class Fox extends Animal{
 	 * @param startWithRandomAge
 	 *            If true, the fox will have random age and hunger level.
 	 */
-	public Fox(boolean startWithRandomAge, Location location) {
+	public Fox(boolean startWithRandomAge, Vector2 location) {
 		super( location);
 		if (startWithRandomAge) {
 			setAge((int)(Math.random()*MAX_AGE));
@@ -67,14 +63,14 @@ public class Fox extends Animal{
 			// New foxes are born into adjacent locations.
 			int births = breed();
 			for (int b = 0; b < births; b++) {
-				Location loc= updated_field.randomAdjacentLocation(location);
+				Vector2 loc= updated_field.randomAdjacentLocation(location);
 				Fox newFox = new Fox(true,loc);
 				newFox.setFoodLevel(this.foodLevel);
 				new_animals.add(newFox);
 				updated_field.put(newFox, loc);
 			}
 			// Move towards the source of food if found.
-			Location newLocation = current_field.getAdjacentOfType( location, "Rabbit", true);
+			Vector2 newLocation = current_field.getAdjacentOfType( location, "Rabbit", true);
 			if(newLocation != null){foodLevel = RABBIT_FOOD_VALUE;}//found food
 			if (newLocation == null) { // no food found - move randomly
 				newLocation = updated_field.freeAdjacentLocation(location);
@@ -144,7 +140,7 @@ public class Fox extends Animal{
 	 *            The horizontal coordinate of the location.
 	 */
 	public void setLocation(int row, int col) {
-		this.location = new Location(row, col);
+		this.location = new Vector2(row, col);
 	}
 
 	/**
@@ -154,7 +150,7 @@ public class Fox extends Animal{
 	 *            The fox's location.
 	 */
 
-	public void setLocation(Location location) {
+	public void setLocation(Vector2 location) {
 		this.location = location;
 	}
 

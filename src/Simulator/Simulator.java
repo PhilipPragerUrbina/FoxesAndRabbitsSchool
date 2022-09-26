@@ -1,6 +1,5 @@
 package Simulator;
 
-import java.awt.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
@@ -229,8 +228,8 @@ public class Simulator {
             for (int col = 0; col < field.getWidth(); col++) {
                 Class<? extends Animal> c = randomAnimal(rand,0);
                 if(c != null){
-                    Constructor<? extends Animal> con =  c.getConstructor(boolean.class, Location.class);
-                    Animal new_animal = (Animal)con.newInstance(true,new Location(row,col));
+                    Constructor<? extends Animal> con =  c.getConstructor(boolean.class, Vector2.class);
+                    Animal new_animal = (Animal)con.newInstance(true,new Vector2(row,col));
                     animal_list.add(new_animal);
                     field.put(new_animal, row, col);
                 }
@@ -294,13 +293,13 @@ public class Simulator {
     // Note: you probably want to modify handleMouseClick(Field.Location) which
     // gives you the location they clicked on in the grid.
     public void handleMouseClick(float mouseX, float mouseY) {
-        Location loc = view.gridLocationAt(mouseX, mouseY); // get grid at
+        Vector2 loc = view.gridLocationAt(mouseX, mouseY); // get grid at
         // click.
         if (loc == null) return;
 
         for (int x = loc.getCol() - 8; x < loc.getCol() + 8; x++) {
             for (int y = loc.getRow() - 8; y < loc.getRow() + 8; y++) {
-                Location locToCheck = new Location(y, x);
+                Vector2 locToCheck = new Vector2(y, x);
                 if (field.isLegalLocation(locToCheck)) {
                     Animal animal = field.getObjectAt(locToCheck);
                    animal_list.remove(animal);
@@ -312,19 +311,19 @@ public class Simulator {
         }
     }
 
-    private void handleMouseClick(Location l) {
+    private void handleMouseClick(Vector2 l) {
         System.out.println("Change handleMouseClick in Simulator.Simulator.java to do something!");
     }
 
     public void handleMouseDrag(int mouseX, int mouseY) {
-        Location loc = this.view.gridLocationAt(mouseX, mouseY); // get grid at
+        Vector2 loc = this.view.gridLocationAt(mouseX, mouseY); // get grid at
         // click.
         if (loc == null)
             return; // if off the screen, exit
         handleMouseDrag(loc);
     }
 
-    private void handleMouseDrag(Location l) {
+    private void handleMouseDrag(Vector2 l) {
         System.out.println("Change handleMouseDrag in Simulator.Simulator.java to do something!");
     }
 }

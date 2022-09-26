@@ -3,7 +3,6 @@ package Animals;
 import Field.*;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 //class to represent a human built object
@@ -11,7 +10,7 @@ import java.util.List;
 public class Structure extends Animal{
 
 
-    public Structure( Location location) {
+    public Structure( Vector2 location) {
         super(location);
     }
 

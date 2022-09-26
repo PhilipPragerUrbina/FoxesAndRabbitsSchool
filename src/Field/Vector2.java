@@ -1,7 +1,7 @@
-package monte.carlo;
+package Field;
 
 //2d vector class
-public class Vector2 implements Data{
+public class Vector2  {
     //values
     public double x;
     public double y;
@@ -11,11 +11,7 @@ public class Vector2 implements Data{
         this.x = x;
         this.y = y;
     }
-
-    public Vector2(Data x, Data y){
-        this.x = x.toNumericalValue();
-        this.y = y.toNumericalValue();
-    }
+    
 
     //from scalar
     public Vector2(double scalar){
@@ -94,15 +90,6 @@ public class Vector2 implements Data{
         return new Vector2(Math.max(x, b.x), Math.max(y, b.y));
     }
 
-    @Override
-    public double toNumericalValue() {
-        return x;
-    }
-
-    @Override
-    public String toStringValue() {
-        return toString();
-    }
 
     @Override
     public String toString() {

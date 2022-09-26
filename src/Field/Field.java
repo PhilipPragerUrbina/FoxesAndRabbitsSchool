@@ -1,79 +1,37 @@
 package Field;
 
 import Animals.Animal;
-import Animals.Fox;
 
 import java.io.Serializable;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
 /**
- * Represent a rectangular grid of field positions. Each position is able to
- * store a single animal.
+ * Represent a rectangular grid filled with animals of arbitrary positions using a floating point coordinate system
  * 
  * @author David J. Barnes and Michael Kolling. Modified by David Dobervich
- *         2007-2022
+ *         2007-2022. Modifed by Philip Prager
  */
 public class Field implements Serializable {
 
 	private static final Random rand = new Random();
 
 	// The height and width of the field.
-	private int height, width;
+	private Vector2 dimensions;
 
 	// Storage for the items on the board.
-	private Animal[][] board;
+	private ArrayList<Animal> animals;
 
-	private HashMap<Class, ArrayList<Location>> animals;
 
-	private int numberOfRows;
-	private int numberOfColumns;
+	//a field of given dimensions
+	public Field(double width, double height) {
+		this.dimensions.y = height;
+		this.dimensions.x = width;
+		animals = new ArrayList<>();
 
-	// define some class constants to represent directions
-	/** Represents the direction NORTH */
-	static final int N = 0;
-	/** Represents the direction NORTHEAST */
-	static final int NE = 1;
-	/** Represents the direction EAST */
-	static final int E = 2;
-	/** Represents the direction SOUTHEAST */
-	static final int SE = 3;
-	/** Represents the direction SOUTH */
-	static final int S = 4;
-	/** Represents the direction SOUTHWEST */
-	static final int SW = 5;
-	/** Represents the direction WEST */
-	static final int W = 6;
-	/** Represents the direction NORTHWEST */
-	static final int NW = 7;
-	/** Represents the direction "right here" */
-	static final int STAY = 8;
-	/** The smallest int representing a direction */
-	static final int MIN_DIRECTION = 0;
-	/** The largest int representing a direction */
-	static final int MAX_DIRECTION = 7;
-
-	/**
-	 * Represent a field of the given dimensions.
-	 * 
-	 * @param height
-	 *            The depth of the field.
-	 * @param width
-	 *            The width of the field.
-	 */
-	public Field(int width, int height) {
-		this.height = height;
-		this.width = width;
-		this.numberOfColumns = width;
-		this.numberOfRows = height;
-		board = new Animal[height][width];
-		animals = new HashMap<Class, ArrayList<Location>>();
 	}
 
 	/**
@@ -99,7 +57,7 @@ public class Field implements Serializable {
 	 *            Column coordinate of the location.
 	 */
 	public void put(Animal obj, int row, int col) {
-		put(obj, new Location(row, col));
+		put(obj, new Vector2(row, col));
 	}
 	
 	/**
@@ -111,7 +69,7 @@ public class Field implements Serializable {
 	 * @param location
 	 *            Where to place the animal.
 	 */
-	public void put(Animal obj, Location location) {
+	public void put(Animal obj, Vector2 location) {
 		board[location.getRow()][location.getCol()] = obj;
 	}
 
@@ -122,7 +80,7 @@ public class Field implements Serializable {
 	 *            Where in the field.
 	 * @return The animal at the given location, or null if there is none.
 	 */
-	public Animal getObjectAt(Location location) {
+	public Animal getObjectAt(Vector2 location) {
 		return getObjectAt(location.getRow(), location.getCol());
 	}
 
@@ -149,7 +107,7 @@ public class Field implements Serializable {
 	 * @return A valid location within the grid area. This may be the same
 	 *         object as the location parameter.
 	 */
-	public Location randomAdjacentLocation(Location location) {
+	public Vector2 randomAdjacentLocation(Vector2 location) {
 		int row = location.getRow();
 		int col = location.getCol();
 		// Generate an offset of -1, 0, or +1 for both the current row and col.
@@ -159,18 +117,18 @@ public class Field implements Serializable {
 		if (!isLegalLocation(nextRow, nextCol)) {
 			return location;
 		} else if (nextRow != row || nextCol != col) {
-			return new Location(nextRow, nextCol);
+			return new Vector2(nextRow, nextCol);
 		} else {
 			return location;
 		}
 	}
 		//return the location of an adjacent type and kill if specified
-	public Location getAdjacentOfType(Location location, String name){
+	public Vector2 getAdjacentOfType(Vector2 location, String name){
 		return getAdjacentOfType(location,name,false);
 	}
-	public Location getAdjacentOfType( Location location,String name, boolean kill  ) {
-		List<Location> adjacentLocations = adjacentLocations(location);
-		for (Location where : adjacentLocations) {
+	public Vector2 getAdjacentOfType(Vector2 location, String name, boolean kill  ) {
+		List<Vector2> adjacentLocations = adjacentLocations(location);
+		for (Vector2 where : adjacentLocations) {
 			Animal animal = getObjectAt(where);
 			if (animal != null && animal.getTypeName() == name) {
 				if(animal.isAlive()){
@@ -194,9 +152,9 @@ public class Field implements Serializable {
 	 *         object as the location parameter, or null if all locations around
 	 *         are full.
 	 */
-	public Location freeAdjacentLocation(Location location) {
-		List<Location> adjacent = adjacentLocations(location);
-		for (Location next : adjacent) {
+	public Vector2 freeAdjacentLocation(Vector2 location) {
+		List<Vector2> adjacent = adjacentLocations(location);
+		for (Vector2 next : adjacent) {
 			if (board[next.getRow()][next.getCol()] == null) {
 				return next;
 			}
@@ -209,8 +167,8 @@ public class Field implements Serializable {
 		}
 	}
 
-	public Location freeAdjacentLocation(int row, int col) {
-		return freeAdjacentLocation(new Location(row, col));
+	public Vector2 freeAdjacentLocation(int row, int col) {
+		return freeAdjacentLocation(new Vector2(row, col));
 	}
 
 	/**
@@ -222,10 +180,10 @@ public class Field implements Serializable {
 	 *            The location from which to generate adjacencies.
 	 * @return An iterator over locations adjacent to that given.
 	 */
-	public List<Location> adjacentLocations(Location location) {
+	public List<Vector2> adjacentLocations(Vector2 location) {
 		int row = location.getRow();
 		int col = location.getCol();
-		List<Location> locations = new LinkedList<Location>();
+		List<Vector2> locations = new LinkedList<Vector2>();
 		for (int roffset = -1; roffset <= 1; roffset++) {
 			int nextRow = row + roffset;
 			if (nextRow >= 0 && nextRow < height) {
@@ -234,7 +192,7 @@ public class Field implements Serializable {
 					// Exclude invalid locations and the original location.
 					if (nextCol >= 0 && nextCol < width
 							&& (roffset != 0 || coffset != 0)) {
-						locations.add(new Location(nextRow, nextCol));
+						locations.add(new Vector2(nextRow, nextCol));
 					}
 				}
 			}
@@ -243,8 +201,8 @@ public class Field implements Serializable {
 		return locations;
 	}
 
-	public List<Location> adjacentLocations(int row, int col) {
-		return adjacentLocations(new Location(row, col));
+	public List<Vector2> adjacentLocations(int row, int col) {
+		return adjacentLocations(new Vector2(row, col));
 	}
 
 	/**
@@ -326,7 +284,7 @@ public class Field implements Serializable {
 				(col >= 0) && (col < getWidth()));
 	}
 
-	public boolean isLegalLocation(Location l) {
+	public boolean isLegalLocation(Vector2 l) {
 		return isLegalLocation(l.getRow(), l.getCol());
 	}
 
@@ -334,94 +292,12 @@ public class Field implements Serializable {
 		return this.board[row][col] == null;
 	}
 
-	public boolean isEmpty(Location l) {
+	public boolean isEmpty(Vector2 l) {
 		return isEmpty(l.getRow(), l.getCol());
 	}
 
-	/**
-	 * Determines what can be seen from a given location, looking in a given
-	 * direction.
-	 * 
-	 * @param row
-	 *            the row of the object doing the looking
-	 * @param col
-	 *            the column of the object doing the looking
-	 * @param direction
-	 *            the direction of the look
-	 * @return the object seen, or null if nothing seen.
-	 */
-	private Object look(int row, int col, int direction) {
-		// decode direction into its x-y components
-		int rowDelta = rowChange(direction);
-		int columnDelta = columnChange(direction);
 
-		// check in that direction until you see something
-		// (if nothing else, you will eventually see the edge of the
-		// array, thus the loop <i>will</i> terminate)
-		while (true) {
-			row = row + rowDelta;
-			col = col + columnDelta;
-			if (!isLegalLocation(row, col))
-				return null;
-			if (board[row][col] != null)
-				return board[row][col];
-		}
-	}
 
-	public Object getObjectInDirection(Location l, int d) {
-		return look(l.getRow(), l.getCol(), d);
-	}
 
-	/**
-	 * Determines the distance to the nearest thing, or to the edge of the
-	 * field, looking in a given direction.
-	 * 
-	 * @param row
-	 *            the row of the object doing the looking
-	 * @param column
-	 *            the column of the object doing the looking
-	 * @param direction
-	 *            the direction of the look
-	 * @return the distance
-	 */
-	private int distance(int row, int column, int direction) {
-		// decode direction into its x-y components
-		int rowDelta = rowChange(direction);
-		int columnDelta = columnChange(direction);
 
-		// check in that direction until you see something
-		// (if nothing else, you will eventually see the edge of the
-		// array, thus the loop <i>will</i> terminate)
-		int steps = 0;
-		while (true) {
-			row = row + rowDelta;
-			column = column + columnDelta;
-			steps++;
-			if (!isLegalLocation(row, column) || board[row][column] != null) {
-				return steps;
-			}
-		}
-	}
-
-	public int distanceToObject(Location l, int d) {
-		return distance(l.getRow(), l.getCol(), d);
-	}
-
-	/**
-	 * Given a direction and a number of times to make 1/8 turn clockwise,
-	 * return the resultant direction.
-	 * 
-	 * @param direction
-	 *            the initial direction
-	 * @param number
-	 *            of 45 degree turns clockwise
-	 * @return the resultant direction
-	 */
-	static int calculateNewDirection(int direction, int number) {
-		int mod = (direction + number) % (MAX_DIRECTION - MIN_DIRECTION + 1);
-		if (mod >= MIN_DIRECTION)
-			return mod;
-		else
-			return 8 + mod;
-	}
 }

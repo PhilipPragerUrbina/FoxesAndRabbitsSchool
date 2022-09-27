@@ -12,6 +12,7 @@ public class Structure extends Animal{
 
     public Structure( Vector2 location) {
         super(location);
+        setRadius(2.0);
     }
 
     @Override
@@ -21,7 +22,7 @@ public class Structure extends Animal{
 
     @Override
     public void performActions(Field current_field, Field next_field, List<Animal> new_animals) {
-        next_field.put(this, location);
+        next_field.put(this);
     }
 
     @Override

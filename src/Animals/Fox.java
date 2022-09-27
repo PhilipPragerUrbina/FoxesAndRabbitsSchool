@@ -63,21 +63,33 @@ public class Fox extends Animal{
 			// New foxes are born into adjacent locations.
 			int births = breed();
 			for (int b = 0; b < births; b++) {
-				Vector2 loc= updated_field.randomAdjacentLocation(location);
+				Vector2 loc= updated_field.randomNearbyLocation(location,3.0,radius,100);
+				if(loc == null){
+					continue;
+				}
 				Fox newFox = new Fox(true,loc);
 				newFox.setFoodLevel(this.foodLevel);
 				new_animals.add(newFox);
-				updated_field.put(newFox, loc);
+				updated_field.put(newFox);
 			}
 			// Move towards the source of food if found.
-			Vector2 newLocation = current_field.getAdjacentOfType( location, "Rabbit", true);
-			if(newLocation != null){foodLevel = RABBIT_FOOD_VALUE;}//found food
+			Animal closest_prey = current_field.closestAnimalOfType( location, "Rabbit"); //find food
+
+		Vector2 newLocation = null; //is close
+		//todo add these constants
+		//todo create an easy distance function in field
+		if(closest_prey != null && closest_prey.getLocation().distance(location) < 2.5){
+				foodLevel = RABBIT_FOOD_VALUE; //eat
+				closest_prey.kill();
+				newLocation = closest_prey.getLocation();
+			}
+
 			if (newLocation == null) { // no food found - move randomly
-				newLocation = updated_field.freeAdjacentLocation(location);
+				newLocation = updated_field.randomNearbyLocation(location,3.0,radius,100);
 			}
 			if (newLocation != null) {
 				setLocation(newLocation);
-				updated_field.put(this, newLocation);
+				updated_field.put(this);
 			} else {
 				// can neither move nor stay - overcrowding - all locations
 				// taken

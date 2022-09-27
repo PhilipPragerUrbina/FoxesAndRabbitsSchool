@@ -1,5 +1,7 @@
 package Field;
 
+import Animals.Animal;
+
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -119,13 +121,8 @@ public class FieldStats {
     public void generateCounts(Field field)
     {
         reset();
-        for(int row = 0; row < field.getHeight(); row++) {
-            for(int col = 0; col < field.getWidth(); col++) {
-                Object animal = field.getObjectAt(row, col);
-                if(animal != null) {
-                    incrementCount(animal.getClass());
-                }
-            }
+        for (Animal a : field.getAnimals()) {
+            incrementCount(a.getClass());
         }
         countsValid = true;
     }

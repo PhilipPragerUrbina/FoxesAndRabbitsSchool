@@ -10,8 +10,9 @@ public abstract class Animal {
     private boolean is_alive = true; //should be kept in simulation
     private int age; //how long has been alive
     protected Vector2 location; //where is it on the field
+    double radius = 1; //how big is it
 
-
+//create animal at location with age 0
     public Animal(Vector2 location){
         this.location = location;
         this.age =0;
@@ -34,18 +35,24 @@ public abstract class Animal {
 
     public abstract String getTypeName(); //get the name of the animal
 
-    public abstract Color getColor();
+    public abstract Color getColor(); //get color of animal for display
+
+
 
     //getters and setters
     protected int getAge(){
         return age;
     }
     protected void setAge(int age){this.age = age;}
+    public double getRadius(){
+        return radius;
+    }
+    protected void setRadius(double radius){this.radius = radius;}
     public boolean isAlive(){
         return is_alive;
     }
     public void kill(){
         is_alive = false;
     }
-
+    public Vector2 getLocation(){return location;}
 }

@@ -56,17 +56,20 @@ public class Rabbit extends Animal {
     protected void performActions(Field current_field, Field next_field, List<Animal> new_animals) {
         int births = breed();
         for(int b = 0; b < births; b++) {
-            Vector2 loc = next_field.randomAdjacentLocation(location);
+            Vector2 loc = next_field.randomNearbyLocation(location,3.0,radius,100);
+            if(loc == null){
+                continue;
+            }
             Rabbit newRabbit = new Rabbit(false,loc);
             newRabbit.setLocation(loc);
             new_animals.add(newRabbit);
-            next_field.put(newRabbit, loc);
+            next_field.put(newRabbit);
         }
-        Vector2 newLocation = next_field.freeAdjacentLocation(location);
+        Vector2 newLocation =  next_field.randomNearbyLocation(location,3.0,radius,100);
         // Only transfer to the updated field if there was a free location
         if(newLocation != null) {
             setLocation(newLocation);
-            next_field.put(this, newLocation);
+            next_field.put(this);
         }
         else {
            kill();

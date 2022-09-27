@@ -106,13 +106,12 @@ public class Simulator {
 
 
         graph = new Graph(p, view.getLeftEdge(), view.getBottomEdge()+VIEW_EDGE_BUFFER, view.getRightEdge(), p.height-VIEW_EDGE_BUFFER, 0,
-                0, 500, field.getHeight() * field.getWidth());
+                0, 500, 200);
 
 
 
         for (Animal animal : animal_list) {
             graph.setColor(animal.getClass(), animal.getColor().hashCode()); //set graph colors
-            view.setColor(animal.getClass(), animal.getColor().hashCode()); //set field colors
 
         }
         graph.title = "";
@@ -209,7 +208,7 @@ public class Simulator {
 
         if (graph != null) {
             graph.clear();
-            graph.setDataRanges(0, 500, 0, field.getHeight() * field.getWidth());
+            graph.setDataRanges(0, 500, 0, 200);
         }
 
         // Show the starting state in the view.
@@ -231,7 +230,7 @@ public class Simulator {
                     Constructor<? extends Animal> con =  c.getConstructor(boolean.class, Vector2.class);
                     Animal new_animal = (Animal)con.newInstance(true,new Vector2(row,col));
                     animal_list.add(new_animal);
-                    field.put(new_animal, row, col);
+                    field.put(new_animal);
                 }
 
             }
@@ -293,22 +292,21 @@ public class Simulator {
     // Note: you probably want to modify handleMouseClick(Field.Location) which
     // gives you the location they clicked on in the grid.
     public void handleMouseClick(float mouseX, float mouseY) {
-        Vector2 loc = view.gridLocationAt(mouseX, mouseY); // get grid at
+        Vector2 loc = new Vector2(mouseX, mouseY); // get grid at
         // click.
         if (loc == null) return;
-
-        for (int x = loc.getCol() - 8; x < loc.getCol() + 8; x++) {
-            for (int y = loc.getRow() - 8; y < loc.getRow() + 8; y++) {
-                Vector2 locToCheck = new Vector2(y, x);
+//todo fix
+      /*  for (int x = (int)loc.x - 2; x < loc.x + 2; x++) {
+            for (int y = (int)loc.y - 2; y < loc.y + 2; y++) {
+                Vector2 locToCheck = view.gridLocationAt(new Vector2(x, y));
                 if (field.isLegalLocation(locToCheck)) {
-                    Animal animal = field.getObjectAt(locToCheck);
-                   animal_list.remove(animal);
-
-                    field.put(null, locToCheck);
-                    updatedField.put(null, locToCheck);
+                    Animal animal = field.closestAnimal(locToCheck); //get animal at location
+                   animal_list.remove(animal); //remove
+                    field.remove(animal);
+                    updatedField.remove(animal);
                 }
             }
-        }
+        }*/
     }
 
     private void handleMouseClick(Vector2 l) {
@@ -316,7 +314,7 @@ public class Simulator {
     }
 
     public void handleMouseDrag(int mouseX, int mouseY) {
-        Vector2 loc = this.view.gridLocationAt(mouseX, mouseY); // get grid at
+        Vector2 loc = new Vector2(mouseX, mouseY); // get grid at
         // click.
         if (loc == null)
             return; // if off the screen, exit

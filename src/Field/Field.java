@@ -123,6 +123,7 @@ public class Field implements Serializable {
 
 	//is point free
 	public boolean isEmpty(Vector2 location) {
+		if(!isLegalLocation(location)){return false;}; //check if even in field
 		for (Animal animal : animals) { //loop through all animals
 			if(animal.getLocation().distance(location) < animal.getRadius()){ //if within other animal
 				return false;
@@ -133,6 +134,7 @@ public class Field implements Serializable {
 
 	// is spot(circle) free
 	public boolean isEmpty(Vector2 location, double radius) {
+		if(!isLegalLocation(location)){return false;}; //check if even in field
 		for (Animal animal : animals) { //loop through all animals
 			if(animal.getLocation() == null){
 				System.err.println("Someone did not find a position!");

@@ -6,6 +6,7 @@ import processing.core.*;
 
 public class Main extends PApplet {
     private static final int TEXT_EDGE_BUFFER = 0;
+    private static final int DELAY = 20; //delay slowing down simulation
     private Simulator simulator;
     private boolean paused = true;
     private int textSize = 10;
@@ -17,7 +18,7 @@ public class Main extends PApplet {
     @Override
     public void setup() {
         calculateTextSize();
-        this.simulator = new Simulator(80, 60);
+        this.simulator = new Simulator(100, 100,100*100); //simulation field size and max animals
         //add animals
         this.simulator.addAnimal(Rabbit.class, 0.08);
         this.simulator.addAnimal(Fox.class, 0.02);
@@ -46,7 +47,7 @@ public class Main extends PApplet {
             simulator.simulateOneStep();
         }
         try {
-            Thread.sleep(10);
+            Thread.sleep(DELAY);//delay
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -58,11 +58,13 @@ public class Simulator {
     // Object to keep track of statistics of animal populations
     private FieldStats stats;
 
+    private int max_starting_animals; //max number of animals to be spawned at the beginning
+
     /**
      * Construct a simulation field with default size.
      */
     public Simulator() {
-        this(DEFAULT_HEIGHT, DEFAULT_WIDTH);
+        this(DEFAULT_HEIGHT, DEFAULT_WIDTH,DEFAULT_WIDTH*DEFAULT_HEIGHT);
     }
 
     /**
@@ -70,14 +72,16 @@ public class Simulator {
      *
      * @param height Height of the field. Must be greater than zero.
      * @param width  Width of the field. Must be greater than zero.
+     * @param max_starting_animals Limit animals spawned at start for performance reasons
      */
-    public Simulator(int width, int height) {
+    public Simulator(int width, int height, int max_starting_animals) {
         if (width <= 0 || height <= 0) {
             System.out.println("The dimensions must be greater than zero.");
             System.out.println("Using default values.");
             height = DEFAULT_HEIGHT;
             width = DEFAULT_WIDTH;
         }
+        this.max_starting_animals = max_starting_animals; //max animals for performance reasons
 
         animal_list = new ArrayList<Animal>();
         field = new Field(width, height);
@@ -106,7 +110,7 @@ public class Simulator {
 
 
         graph = new Graph(p, view.getLeftEdge(), view.getBottomEdge()+VIEW_EDGE_BUFFER, view.getRightEdge(), p.height-VIEW_EDGE_BUFFER, 0,
-                0, 500, 200);
+                0, 500, 300);
 
 
 
@@ -208,11 +212,9 @@ public class Simulator {
 
         if (graph != null) {
             graph.clear();
-            graph.setDataRanges(0, 500, 0, 200);
+            graph.setDataRanges(0, 500, 0, 300);
         }
 
-        // Show the starting state in the view.
-        // view.showStatus(step, field);
     }
 
     /**
@@ -221,21 +223,43 @@ public class Simulator {
      * @param field The field to be populated.
      */
     private void initializeBoard(Field field) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Random rand = new Random();
-        field.clear();
-        for (int row = 0; row < field.getHeight(); row++) {
-            for (int col = 0; col < field.getWidth(); col++) {
-                Class<? extends Animal> c = randomAnimal(rand,0);
-                if(c != null){
-                    Constructor<? extends Animal> con =  c.getConstructor(boolean.class, Vector2.class);
-                    Animal new_animal = (Animal)con.newInstance(true,new Vector2(row,col));
+        Random rand = new Random(); //random generator
+        field.clear(); //start from scratch
+        for (int i = 0; i < max_starting_animals; i++) { //for each animal that can be added
+            Class<? extends Animal> c = randomAnimal(rand,0); //get random animal type
+            if(c != null){ //if animal should be added
+                Constructor<? extends Animal> con =  c.getConstructor(boolean.class, Vector2.class);//get animal class
+
+                //get random free location within field
+                Vector2 location = null;
+                for (int j = 0; j < max_starting_animals; j++) {//max tries until fail
+                    Vector2 random_location = new Vector2(Math.random() * field.getWidth(), Math.random() * field.getHeight());
+                    if(field.isEmpty(random_location)){//if valid location
+                        location = random_location;
+                        break;
+                    };
+                }
+                if(location != null) { //if free location was found
+                    Animal new_animal = (Animal) con.newInstance(true, location); //create instance
                     animal_list.add(new_animal);
                     field.put(new_animal);
+                }
+            }
+        }
+        for (int row = 0; row < field.getHeight(); row++) { //go through positions in field
+            for (int col = 0; col < field.getWidth(); col++) {
+
+                if(animal_list.size() > max_starting_animals){
+                    return; //stop adding animals for performance reasons
                 }
 
             }
         }
-        Collections.shuffle(animal_list);
+    }
+
+    //start the following recursive function properly
+    private Class<? extends Animal> randomAnimal(Random rand) {
+    return randomAnimal(rand,0);//threshold should start at 0
     }
 
     //get a random animal type recursively
@@ -287,41 +311,20 @@ public class Simulator {
         graph.draw();
     }
 
-    // Perform an action when the mouse was clicked.
-    // parameters are the x, y screen coordinates the user clicked on.
-    // Note: you probably want to modify handleMouseClick(Field.Location) which
-    // gives you the location they clicked on in the grid.
+
     public void handleMouseClick(float mouseX, float mouseY) {
         Vector2 loc = new Vector2(mouseX, mouseY); // get grid at
-        // click.
-        if (loc == null) return;
-//todo fix
-      /*  for (int x = (int)loc.x - 2; x < loc.x + 2; x++) {
-            for (int y = (int)loc.y - 2; y < loc.y + 2; y++) {
-                Vector2 locToCheck = view.gridLocationAt(new Vector2(x, y));
-                if (field.isLegalLocation(locToCheck)) {
-                    Animal animal = field.closestAnimal(locToCheck); //get animal at location
-                   animal_list.remove(animal); //remove
-                    field.remove(animal);
-                    updatedField.remove(animal);
-                }
-            }
-        }*/
+        Vector2 pos = view.gridLocationAt(loc);
+      //add something here
     }
 
-    private void handleMouseClick(Vector2 l) {
-        System.out.println("Change handleMouseClick in Simulator.Simulator.java to do something!");
-    }
 
     public void handleMouseDrag(int mouseX, int mouseY) {
         Vector2 loc = new Vector2(mouseX, mouseY); // get grid at
-        // click.
-        if (loc == null)
-            return; // if off the screen, exit
-        handleMouseDrag(loc);
+        Vector2 pos = view.gridLocationAt(loc);
+     // add something here
+
     }
 
-    private void handleMouseDrag(Vector2 l) {
-        System.out.println("Change handleMouseDrag in Simulator.Simulator.java to do something!");
-    }
+
 }

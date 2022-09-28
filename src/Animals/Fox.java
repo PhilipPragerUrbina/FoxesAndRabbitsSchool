@@ -23,7 +23,7 @@ public class Fox extends Animal{
 	private static int MAX_LITTER_SIZE = 6;
 	// The food value of a single rabbit. In effect, this is the
 	// number of steps a fox can go before it has to eat again.
-	private static int RABBIT_FOOD_VALUE = 6;
+	private static int RABBIT_FOOD_VALUE = 10;
 	// A shared random number generator to control breeding.
 
 	// -----------------------------------------------------
@@ -78,14 +78,23 @@ public class Fox extends Animal{
 		Vector2 newLocation = null; //is close
 		//todo add these constants
 		//todo create an easy distance function in field
-		if(closest_prey != null && closest_prey.getLocation().distance(location) < 2.5){
+		if(closest_prey != null && closest_prey.getLocation().distance(location) < 2){//food range
 				foodLevel = RABBIT_FOOD_VALUE; //eat
 				closest_prey.kill();
 				newLocation = closest_prey.getLocation();
 			}
 
 			if (newLocation == null) { // no food found - move randomly
-				newLocation = updated_field.randomNearbyLocation(location,3.0,radius,100);
+				newLocation = updated_field.randomNearbyLocation(location,2.0,radius,100);
+				Animal nearest_rabbite = current_field.closestAnimalOfType(location, "Rabbit");
+//todo clean up and comment
+				if(nearest_rabbite != null){
+					Vector2 location_in_direction = nearest_rabbite.getLocation().subtract(location).normalized();
+					location_in_direction = location.add(location_in_direction.multiply(new Vector2(2.0)));//random speed todo
+					if (updated_field.isEmpty(location_in_direction)) {
+						newLocation= location_in_direction;
+					}
+				}
 			}
 			if (newLocation != null) {
 				setLocation(newLocation);

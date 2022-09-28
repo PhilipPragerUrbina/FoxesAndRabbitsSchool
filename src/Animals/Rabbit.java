@@ -65,7 +65,22 @@ public class Rabbit extends Animal {
             new_animals.add(newRabbit);
             next_field.put(newRabbit);
         }
-        Vector2 newLocation =  next_field.randomNearbyLocation(location,3.0,radius,100);
+        Animal nearest_fox = current_field.closestAnimalOfType(location, "Fox");
+
+        Vector2 newLocation =  next_field.randomNearbyLocation(location,2.0,radius,100);
+        if(nearest_fox != null){
+            //A->B   = (B-A).normalized
+            //formula for going toward or away direction
+            Vector2 location_in_direction = location.subtract(nearest_fox.getLocation()).normalized();//away from fox
+            location_in_direction = location.add(location_in_direction.multiply(new Vector2(2.0)));//speed
+            if (next_field.isEmpty(location_in_direction)) {
+                newLocation= location_in_direction;
+            }
+        }
+
+
+
+
         // Only transfer to the updated field if there was a free location
         if(newLocation != null) {
             setLocation(newLocation);

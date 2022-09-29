@@ -67,6 +67,13 @@ public class Simulator {
         this(DEFAULT_HEIGHT, DEFAULT_WIDTH,DEFAULT_WIDTH*DEFAULT_HEIGHT);
     }
 
+    //add animal class to simulation
+    public void addAnimal(Class<? extends Animal> type, double spawn_prob){
+        spawn_probabilities.add(spawn_prob);
+        animals_to_add.add(type);
+    }
+
+
     /**
      * Create a simulation field with the given size.
      *
@@ -95,28 +102,17 @@ public class Simulator {
 
     //do after animals classes have been added
    public void populate(){
-        // Setup a valid starting point.
-        reset();
+        reset();   // Setup a valid starting point.
     }
 
     public void setGUI(PApplet p) {
         this.graphicsWindow = p;
-
-
-
         // Create a view of the state of each location in the field.
         view = new FieldDisplay(p, this.field, VIEW_EDGE_BUFFER, VIEW_EDGE_BUFFER, p.width - 2*VIEW_EDGE_BUFFER, p.height / 2 - 2 * VIEW_EDGE_BUFFER);
-
-
-
-        graph = new Graph(p, view.getLeftEdge(), view.getBottomEdge()+VIEW_EDGE_BUFFER, view.getRightEdge(), p.height-VIEW_EDGE_BUFFER, 0,
-                0, 500, 300);
-
-
+        graph = new Graph(p, view.getLeftEdge(), view.getBottomEdge()+VIEW_EDGE_BUFFER, view.getRightEdge(), p.height-VIEW_EDGE_BUFFER, 0, 0, 500, 300);
 
         for (Animal animal : animal_list) {
             graph.setColor(animal.getClass(), animal.getColor().hashCode()); //set graph colors
-
         }
         graph.title = "";
         for (Class<? extends Animal> c : animals_to_add) {
@@ -130,15 +126,7 @@ public class Simulator {
      * Run the simulation from its current state for a reasonably long period,
      * e.g. 500 steps.
      */
-    public void runLongSimulation() {
-        simulate(500);
-    }
-
-    //add animal class to simulation
-    public void addAnimal(Class<? extends Animal> type, double spawn_prob){
-        spawn_probabilities.add(spawn_prob);
-        animals_to_add.add(type);
-    }
+    public void runLongSimulation() {simulate(500);}
 
     /**
      * Run the simulation from its current state for the given number of steps.
@@ -147,9 +135,7 @@ public class Simulator {
      * @param numSteps The number of steps to run for.
      */
     public void simulate(int numSteps) {
-        for (int step = 1; step <= numSteps && isViable(); step++) {
-            simulateOneStep();
-        }
+        for (int step = 1; step <= numSteps && isViable(); step++) {simulateOneStep();}
     }
 
     /**
@@ -158,9 +144,7 @@ public class Simulator {
      */
     public void simulateOneStep() {
         step++;
-
         ArrayList<Animal> new_animals = new ArrayList<>();
-
         // Loop through Humans; let each live around.
         for (int i = 0; i < animal_list.size(); i++) {
             Animal animal = animal_list.get(i);
@@ -172,13 +156,11 @@ public class Simulator {
         }
         animal_list.addAll(new_animals);
 
-
         // Swap the field and updatedField at the end of the step.
         Field temp = field;
         field = updatedField;
         updatedField = temp;
         updatedField.clear();
-
         stats.generateCounts(field);
         updateGraph();
     }
@@ -209,12 +191,10 @@ public class Simulator {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-
         if (graph != null) {
             graph.clear();
             graph.setDataRanges(0, 500, 0, 300);
         }
-
     }
 
     /**
@@ -229,7 +209,6 @@ public class Simulator {
             Class<? extends Animal> c = randomAnimal(rand,0); //get random animal type
             if(c != null){ //if animal should be added
                 Constructor<? extends Animal> con =  c.getConstructor(boolean.class, Vector2.class);//get animal class
-
                 //get random free location within field
                 Vector2 location = null;
                 for (int j = 0; j < max_starting_animals; j++) {//max tries until fail
@@ -270,12 +249,10 @@ public class Simulator {
         for (int i = 0; i < animals_to_add.size(); i++) { //for each
             Class<? extends  Animal> c = animals_to_add.get(i);
             double p = spawn_probabilities.get(i);
-
             if (p < minimum_p && p > threshold) {//if smaller but also more than the last iteration
                 minimum_p = p; //update
                 final_c = c;
             }
-
         }
         if(final_c == null){
             return null;
@@ -317,14 +294,11 @@ public class Simulator {
         Vector2 pos = view.gridLocationAt(loc);
       //add something here
     }
-
-
     public void handleMouseDrag(int mouseX, int mouseY) {
         Vector2 loc = new Vector2(mouseX, mouseY); // get grid at
         Vector2 pos = view.gridLocationAt(loc);
      // add something here
 
     }
-
 
 }

@@ -8,24 +8,18 @@ import java.util.List;
 //superclass for animals
 public abstract class Animal {
     private boolean is_alive = true; //should be kept in simulation
-    private int age; //how long has been alive
+    private int age = 0; //how long has been alive
     protected Vector2 location; //where is it on the field
     double radius = 1; //how big is it
 
-//create animal at location with age 0
-    public Animal(Vector2 location){
-        this.location = location;
-        this.age =0;
-    }
-
+    //create animal at location with age 0
+    public Animal(Vector2 location){this.location = location;}
 
     //step the simulation
     public void step(Field current_field, Field next_field, List<Animal> new_animals){
         age++;
         checkDeath();
-        if(is_alive){
-            performActions(current_field,next_field,new_animals);
-        }
+        if(is_alive){performActions(current_field,next_field,new_animals);}
     };
 
     //abstract methods

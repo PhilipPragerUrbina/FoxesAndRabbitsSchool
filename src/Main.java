@@ -4,6 +4,7 @@ import Animals.Rabbit;
 import Simulator.Simulator;
 import processing.core.*;
 
+//main class
 public class Main extends PApplet {
     private static final int TEXT_EDGE_BUFFER = 0;
     private static final int DELAY = 20; //delay slowing down simulation
@@ -12,7 +13,7 @@ public class Main extends PApplet {
     private int textSize = 10;
 
     public void settings() {
-        size(800, 800);        // window size in pixels
+        size(800, 800);  // window size in pixels
     }
 
     @Override
@@ -24,6 +25,7 @@ public class Main extends PApplet {
         this.simulator.addAnimal(Fox.class, 0.02);
         this.simulator.addAnimal(Human.class, 0.0005);
 
+        //set up
         this.simulator.populate();
         this.simulator.setGUI(this);
     }

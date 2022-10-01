@@ -7,6 +7,11 @@ public class Gene {
         value = (Math.random() * (max-min))+min;
     }
 
+    //create a new gene with a  starting value
+    public Gene(double value){
+        this.value = value;
+    }
+
     //create a gene from a parent gene with a certain amount of +- variation
     public Gene(Gene parent, double max_variation){
         value = parent.value + ((Math.random() * max_variation * 2.0)-(max_variation));//random between -variation and +variation

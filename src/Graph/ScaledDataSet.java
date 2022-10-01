@@ -37,7 +37,6 @@ public class ScaledDataSet {
         this.yshiftval = scaledymin - yscaleval*inputymin;
     }
 
-    // todo:  check if re-scaling to existing scaling values!
     public void setxScaling(float inputxmin, float scaledxmin,
             float inputxmax, float scaledxmax) {
         this.inputxmin = inputxmin;

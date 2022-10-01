@@ -12,9 +12,10 @@ public class Fox extends Animal{
 	private static int MAX_AGE = 50;  //age at which it dies
 	private static double BREEDING_PROBABILITY = 0.15; //how likely to breed
 	private static int MAX_LITTER_SIZE = 6;   //max number of children at a time
-	private static int RABBIT_FOOD_VALUE = 10; //how much food a rabbit gives
-	private static double EATING_RANGE = 2; //How far a fox can reach
+	private static int RABBIT_FOOD_VALUE = 6; //how much food a rabbit gives
+	private static double EATING_RANGE = 2.5; //How far a fox can reach
 	 private static double SPEED = 2; //how fast a fox is
+	 private Gene speed_gene;
 
 	// The fox's food level, which is increased by eating rabbits.
 	private int foodLevel;
@@ -23,6 +24,7 @@ public class Fox extends Animal{
 	//create a new fox at a location, and if it should have a random age
 	public Fox(boolean startWithRandomAge, Vector2 location) {
 		super(location); //set location
+		speed_gene = new Gene(SPEED);//create new speed gene
 		if (startWithRandomAge) { //random start
 			setAge((int)(Math.random()*MAX_AGE));
 			foodLevel = (int)(Math.random()*RABBIT_FOOD_VALUE);
@@ -30,6 +32,14 @@ public class Fox extends Animal{
 			foodLevel = RABBIT_FOOD_VALUE; //basic start
 		}
 	}
+	 //create a new baby fox from genes
+	 public Fox( Vector2 location, Gene parent_speed_gene) {
+		 super(location); //set location
+		 speed_gene = new Gene(parent_speed_gene,0.01);//create new speed gene
+		 setAge((int)(Math.random()*MAX_AGE));
+		 foodLevel = (int)(Math.random()*RABBIT_FOOD_VALUE);
+
+	 }
 	@Override
 	public Color getColor() {
 		return new Color(155,100,0); //orange
@@ -43,7 +53,7 @@ public class Fox extends Animal{
 			for (int b = 0; b <  breed(); b++) {
 				Vector2 baby_location= updated_field.randomNearbyLocation(location,radius*2,radius,100); //random location
 				if(baby_location == null){continue;} //no location found
-				Fox newFox = new Fox(true,baby_location);//create new fox
+				Fox newFox = new Fox(baby_location, speed_gene);//create new fox
 				newFox.setFoodLevel(this.foodLevel); //set food
 				new_animals.add(newFox); //add
 				updated_field.put(newFox);
@@ -59,10 +69,10 @@ public class Fox extends Animal{
 				new_location = closest_prey.getLocation(); //go to their location
 			}
 			if (new_location == null) { // no food in range
-				new_location = updated_field.randomNearbyLocation(location,SPEED,radius,100); //random direction
+				new_location = updated_field.randomNearbyLocation(location,speed_gene.getValue(),radius,100); //random direction
 				if(closest_prey != null){ //if rabbits exist
 					Vector2 direction = closest_prey.getLocation().subtract(location).normalized(); //get direction
-					Vector2 location_in_direction = location.add(direction.multiply(new Vector2(SPEED))); //move toward rabbit
+					Vector2 location_in_direction = location.add(direction.multiply(new Vector2(speed_gene.getValue()))); //move toward rabbit
 					if (updated_field.isEmpty(location_in_direction,radius)) {new_location= location_in_direction;} //check if location is free
 				}
 			}

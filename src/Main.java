@@ -22,7 +22,7 @@ public class Main extends PApplet {
         this.simulator = new Simulator(100, 100,100*100); //simulation field size and max animals
         //add animals
         this.simulator.addAnimal(Rabbit.class, 0.08);
-        this.simulator.addAnimal(Fox.class, 0.02);
+        this.simulator.addAnimal(Fox.class, 0.04);
         this.simulator.addAnimal(Human.class, 0.0005);
 
         //set up
